@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AIX.Application\AIX.Application.csproj" />
+    <ProjectReference Include="..\AIX.Documents.Domain\AIX.Documents.Domain.csproj" />
+    <ProjectReference Include="..\AIX.Security.Domain\AIX.Security.Domain.csproj" />
+    <ProjectReference Include="..\AIX.SharedKernel\AIX.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
