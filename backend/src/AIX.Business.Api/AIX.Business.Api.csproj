@@ -11,7 +11,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AIX.Application\AIX.Application.csproj" />
+    <ProjectReference Include="..\AIX.Documents\AIX.Documents.csproj" />
+    <ProjectReference Include="..\AIX.Metadata\AIX.Metadata.csproj" />
+    <ProjectReference Include="..\AIX.Governance\AIX.Governance.csproj" />
+    <ProjectReference Include="..\AIX.Storage\AIX.Storage.csproj" />
+    <ProjectReference Include="..\AIX.Search\AIX.Search.csproj" />
+    <ProjectReference Include="..\AIX.Workflow\AIX.Workflow.csproj" />
+    <ProjectReference Include="..\AIX.Security\AIX.Security.csproj" />
+    <ProjectReference Include="..\AIX.ReferenceData\AIX.ReferenceData.csproj" />
+    <ProjectReference Include="..\AIX.Integrations\AIX.Integrations.csproj" />
     <ProjectReference Include="..\AIX.Infrastructure\AIX.Infrastructure.csproj" />
     <ProjectReference Include="..\AIX.SharedKernel\AIX.SharedKernel.csproj" />
   </ItemGroup>

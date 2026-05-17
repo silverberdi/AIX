@@ -9,7 +9,7 @@
     "lint:ui": "nx lint aix-ui",
     "e2e:ui": "nx e2e aix-ui-e2e",
     "serve:business-api": "dotnet run --project backend/src/AIX.Business.Api",
-    "serve:tenant-api": "dotnet run --project backend/src/AIX.Tenant.Api",
+    "serve:platform-api": "dotnet run --project backend/src/AIX.Platform.Api",
     "build:backend": "dotnet build backend/AIX.sln",
     "test:backend": "dotnet test backend/AIX.sln"
   },

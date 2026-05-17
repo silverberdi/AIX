@@ -1,5 +1,6 @@
 # Node
 node_modules/
+libs/node_modules/
 dist/
 .tmp/
 tmp/

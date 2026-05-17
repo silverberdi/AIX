@@ -19,8 +19,8 @@ This keeps product code colocated while respecting different build graphs, lifec
 
 ## Why backend stays independent
 
-- .NET 9 solution (`backend/AIX.sln`) follows Clean Architecture with its own test runner (`dotnet test`).
-- APIs, domain, application, and infrastructure evolve on the CLR stack without webpack or Nx executors.
+- .NET 9 solution (`backend/AIX.sln`) follows modular monolith + bounded contexts with its own test runner (`dotnet test`).
+- APIs, bounded contexts, and infrastructure evolve on the CLR stack without webpack or Nx executors.
 - CI can build and deploy backend artifacts separately from the SPA.
 
 ## Top-level layout
@@ -45,8 +45,8 @@ ai/             Agent context and instructions
 
 ## Future OpenAPI / schema generation
 
-1. **OpenAPI**: export from `AIX.Tenant.Api` and `AIX.Business.Api` during build or CI → `artifacts/openapi/`.
-2. **Schemas**: publish document-type and renderer schemas from domain/application pipelines → `artifacts/schemas/`.
+1. **OpenAPI**: export from `AIX.Platform.Api` and `AIX.Business.Api` during build or CI → `artifacts/openapi/`.
+2. **Schemas**: publish document-type and renderer schemas from bounded-context pipelines → `artifacts/schemas/`.
 3. **Frontend**: generate or sync clients/types into `libs/shared-data-access` (or successor lib).
 4. **Versioning**: artifact filenames include API/schema version; breaking changes require explicit bumps.
 
@@ -59,8 +59,10 @@ Root `package.json` scripts wrap common commands; they delegate to `nx` or `dotn
 | UI composition | `apps/aix-ui`, `libs/shared-ui` |
 | Frontend shared logic | `libs/shared-core`, `libs/shared-data-access` |
 | HTTP APIs | `backend/src/AIX.*.Api` |
-| Business rules | `backend/src/AIX.Application`, `*Domain` |
-| Persistence / integrations | `backend/src/AIX.Infrastructure` |
+| Business rules | `backend/src/AIX.<BoundedContext>/` (Domain, Application) |
+| BC persistence / integrations | `backend/src/AIX.<BoundedContext>/Infrastructure/` |
+| Shared bootstrap / adapters | `backend/src/AIX.Infrastructure` |
+| Cross-cutting primitives | `backend/src/AIX.SharedKernel` |
 | Product language & rules (human) | `docs/domain/` |
 | Executable contracts | `artifacts/` |
 

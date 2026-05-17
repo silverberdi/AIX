@@ -10,86 +10,115 @@
 
 ## Solution structure
 
+Event-driven modular monolith: bounded contexts as projects, minimal SharedKernel, thin APIs.
+
 ```
 backend/
   AIX.sln
   src/
-    AIX.Tenant.Api          # Tenant administration & resolution
-    AIX.Business.Api        # Document & business operations
-    AIX.Application         # Use cases, orchestration
-    AIX.Documents.Domain    # Document bounded context
-    AIX.Security.Domain     # Security bounded context
-    AIX.Infrastructure      # Persistence, external providers
-    AIX.SharedKernel        # Minimal cross-cutting primitives
+    AIX.Platform.Api        # Platform HTTP: auth, tenants, provisioning, features
+    AIX.Business.Api        # Business HTTP: documents, governance, workflows, etc.
+    AIX.SharedKernel          # Cross-cutting primitives only
+    AIX.Documents             # Document management BC
+    AIX.Metadata              # Schema / DocumentTypes BC
+    AIX.Governance            # Policies, retention BC
+    AIX.Storage               # Storage providers BC
+    AIX.Search                # Indexing and retrieval BC
+    AIX.Workflow              # States, approvals BC
+    AIX.Security              # Authorization BC (business tenant)
+    AIX.ReferenceData         # Lookup datasets BC
+    AIX.Integrations          # External adapters BC
+    AIX.Platform              # Tenants, registry, provisioning BC
+    AIX.Infrastructure        # Composition / shared infrastructure adapters only
   tests/
-    *.Tests                 # One test project per layer under test
+    AIX.*.Tests               # One test project per bounded context
+    AIX.Platform.Api.Tests
+    AIX.Business.Api.Tests
 ```
+
+Each bounded-context project starts with exactly these top-level folders:
+
+```
+Domain/
+Application/
+Infrastructure/
+Contracts/
+Events/
+```
+
+Every bounded context starts with Domain, Application, Infrastructure, Contracts and Events. Deeper folders are created only when there is real code requiring them. Do not add layer subfolders (for example `Domain/Entities/`) until that code exists.
 
 ## Layer responsibilities
 
-### Api (`AIX.Tenant.Api`, `AIX.Business.Api`)
+### Api (`AIX.Platform.Api`, `AIX.Business.Api`)
 
 - HTTP entry points and composition root
-- Middleware, authentication, OpenAPI
-- **No business logic** — delegates to Application via DI
-- References: Application, Infrastructure, SharedKernel
+- Middleware, authentication (Platform), authorization (Business), OpenAPI
+- **No business logic** — delegates to bounded contexts via DI
+- `AIX.Business.Api` references business BCs (Application/Contracts surfaces)
+- `AIX.Platform.Api` references `AIX.Platform` and shared infrastructure only
 
-### Application (`AIX.Application`)
+### Bounded contexts (`AIX.Documents`, `AIX.Metadata`, …)
 
-- Use cases, commands/queries, DTO mapping
-- Application services and validation orchestration
-- References: Documents.Domain, Security.Domain, SharedKernel
-- **Must not** reference Infrastructure
-
-### Domain (`AIX.Documents.Domain`, `AIX.Security.Domain`)
-
-- Entities, value objects, domain services, domain events
-- Business invariants and rules
-- References: SharedKernel only
-- **Must not** reference Application or Infrastructure
+- Own domain rules, use cases, contracts, events, and BC-specific infrastructure
+- Reference `AIX.SharedKernel` only (not other BCs directly; use contracts/events)
+- **Must not** be referenced by SharedKernel
 
 ### Infrastructure (`AIX.Infrastructure`)
 
-- EF Core, repositories, external APIs, storage, messaging
-- Implements interfaces defined in Application/Domain
-- References: Application, both Domain projects, SharedKernel
+- Cross-cutting **composition** and shared adapters (e.g. bootstrap, shared DB host wiring)
+- **Not** a dumping ground for domain rules or BC-specific persistence
+- BC-specific EF/repositories live under each BC’s `Infrastructure/` folder
+- References: `AIX.SharedKernel` only at the shell layer; APIs pull in BC modules
 
 ### SharedKernel (`AIX.SharedKernel`)
 
-- Minimal shared primitives (e.g. base types, result patterns)
-- Keep small — avoid becoming a dumping ground
+- Minimal primitives: `Result`/`Error`, entity/value-object bases, `DomainEvent`, strongly-typed IDs, clock, correlation/causation IDs
+- **No business rules**
+
+## Platform DB vs Tenant DB
+
+| Platform DB | Tenant DB (one per tenant) |
+|-------------|----------------------------|
+| Users, tenant registry, auth identity | Documents, document types, metadata |
+| Subscriptions, provisioning, feature flags | Policies, roles, authorization |
+| Routing keys, secret references | Workflows, business/audit events |
+| Platform audit | Search projections, reference data |
+
+Platform DB does not store tenant business records. Tenant-domain tables do not require `tenant_id` because each tenant has a dedicated database.
 
 ## Dependency rules
 
 ```
-Api ──────────► Application ──────► Domain ──────► SharedKernel
- │                  ▲                ▲
- │                  │                │
- └──────► Infrastructure ─────────────┘
+Api ──► Bounded context (Contracts/Application) ──► Domain ──► SharedKernel
+ │              ▲
+ └──► AIX.Infrastructure (composition / shared adapters only)
 ```
 
 | Rule | Enforced |
 |------|----------|
-| Domain → no Infrastructure | Yes |
-| Domain → no Application | Yes |
-| Application → no Infrastructure | Yes |
-| Api → no direct Domain logic | Convention |
+| BC Domain ↛ other BC projects | Convention (contracts/events) |
+| BC ↛ Api | Yes |
+| SharedKernel ↛ BC or Infrastructure | Yes |
+| Api ↛ no business logic in controllers | Convention |
+| Domain rules ↛ AIX.Infrastructure | Yes |
 
 ## APIs
 
 | API | Purpose |
 |-----|---------|
-| `AIX.Tenant.Api` | Tenant lifecycle, schema provisioning, tenant context |
-| `AIX.Business.Api` | Documents, metadata, search, workflows |
+| `AIX.Platform.Api` | Authentication, tenant registry, provisioning, feature enablement, identity |
+| `AIX.Business.Api` | Documents, metadata, search, workflows, authorization |
 
 ## Planned cross-cutting
 
-- MediatR for request dispatch
-- FluentValidation at Application boundaries
-- Schema-per-tenant via `x-tenant-id` middleware
-- Async workers for OCR, indexing, notifications
+- MediatR for request dispatch (per BC Application layer)
+- FluentValidation at application boundaries
+- JWT-based tenant context; `TenantRuntimeResolver` resolves tenant DB and storage server-side
+- Async workers for indexing, notifications (OCR/AI in future iterations)
 
 ## Testing
 
-- Unit tests per project under `backend/tests/`
+- Unit tests per bounded context under `backend/tests/`
+- API smoke tests: `AIX.Platform.Api.Tests`, `AIX.Business.Api.Tests`
 - Run from `backend/`: `dotnet test`

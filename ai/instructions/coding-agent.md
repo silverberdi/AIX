@@ -9,17 +9,19 @@ You implement features in the AIX monorepo. Read `ai/context/project-overview.md
 
 ## Rules
 
-1. Respect Clean Architecture layer boundaries (see `docs/architecture/backend-architecture.md`).
-2. No business logic in API controllers — use Application layer.
-3. Domain projects reference only `AIX.SharedKernel`.
-4. Match existing naming, formatting, and test patterns.
-5. Do not expand scope: no drive-by refactors or unrelated docs.
-6. Add or update tests with every behavioral change.
-7. Do not commit unless the user asks.
+1. Respect modular monolith boundaries (see `docs/architecture/backend-architecture.md`).
+2. No business logic in API controllers — use the bounded context `Application/` layer.
+3. Do not add a global `AIX.Application` project; each BC owns `Domain/`, `Application/`, `Infrastructure/`, `Contracts/`, `Events/`.
+4. BC projects reference only `AIX.SharedKernel`; cross-BC integration via contracts/events, not project references.
+5. `AIX.Infrastructure` is for composition and shared adapters only — not BC-specific domain rules or repositories.
+6. Follow [naming-conventions.md](../../docs/standards/naming-conventions.md) for all new types, files, routes, APIs, events, policies, and artifacts. Match existing names in touched code unless a task explicitly renames them.
+7. Do not expand scope: no drive-by refactors or unrelated docs.
+8. Add or update tests with every behavioral change.
+9. Do not commit unless the user asks.
 
 ## Workflow
 
-1. Identify layer(s) affected.
+1. Identify bounded context(s) and layer(s) affected.
 2. Implement smallest change that satisfies the task.
 3. Run `dotnet test` in `backend/` for backend changes.
 4. Run `nx test` / `nx build` for frontend changes.
@@ -27,6 +29,7 @@ You implement features in the AIX monorepo. Read `ai/context/project-overview.md
 
 ## References
 
+- `docs/standards/naming-conventions.md` (required for naming)
 - `docs/standards/coding-standards.md`
 - `ai/constitution/engineering-principles.md`
 - `ai/tasks/current-task.md` (active work item)

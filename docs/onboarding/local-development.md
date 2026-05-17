@@ -41,15 +41,22 @@ dotnet test
 Run APIs individually:
 
 ```bash
-dotnet run --project src/AIX.Tenant.Api
+dotnet run --project src/AIX.Platform.Api
 dotnet run --project src/AIX.Business.Api
+```
+
+From the repository root:
+
+```bash
+pnpm run serve:platform-api
+pnpm run serve:business-api
 ```
 
 Default ports (see `launchSettings.json`):
 
 | API | HTTP |
 |-----|------|
-| AIX.Tenant.Api | `http://localhost:5184` |
+| AIX.Platform.Api | `http://localhost:5184` |
 | AIX.Business.Api | `http://localhost:5169` |
 
 ## Infrastructure services (optional)

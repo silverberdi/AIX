@@ -2,6 +2,8 @@
 
 Initial conventions for AIX. Refine via ADRs as the codebase grows.
 
+**Naming:** All project, type, file, API, database, and artifact names must follow [naming-conventions.md](./naming-conventions.md).
+
 ## General
 
 - Strict typing; no `any` (TypeScript) or unjustified `dynamic` (C#)
@@ -19,7 +21,7 @@ Initial conventions for AIX. Refine via ADRs as the codebase grows.
 - Domain entities: no EF attributes; map in Infrastructure
 - Validation: FluentValidation at Application boundaries (when introduced)
 - Async all I/O-bound paths; avoid `.Result` / `.Wait()`
-- Naming: `PascalCase` types/methods; `_camelCase` private fields
+- Naming: see [naming-conventions.md](./naming-conventions.md) (`PascalCase` types/methods; `_camelCase` private fields; snake_case DB; camelCase JSON)
 - Tests: xUnit + FluentAssertions + NSubstitute; one assertion focus per test when practical
 
 ## Angular / Frontend
@@ -29,7 +31,7 @@ Initial conventions for AIX. Refine via ADRs as the codebase grows.
 - PrimeNG for UI primitives; theme aligned with Avalon
 - Smart/dumb component split: containers fetch; presentational components receive inputs
 - No business rules in templates — delegate to services or backend
-- Path aliases: `@aix/shared-core`, `@aix/shared-ui`
+- Path aliases: `@aix/shared-core`, `@aix/shared-ui` (kebab-case lib names per [naming-conventions.md](./naming-conventions.md))
 - Tests: Jest (app), Vitest (libs) via Nx targets
 
 ## Tests

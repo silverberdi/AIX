@@ -15,26 +15,42 @@
 
 ## Backend (`backend/AIX.sln`)
 
-| Project | Layer | Notes |
-|---------|-------|-------|
-| AIX.Tenant.Api | Api | Tenant admin; port ~5184 |
-| AIX.Business.Api | Api | Business/documents; port ~5169 |
-| AIX.Application | Application | Use cases only |
-| AIX.Documents.Domain | Domain | Document BC |
-| AIX.Security.Domain | Domain | Security BC |
-| AIX.Infrastructure | Infrastructure | DB, storage, externals |
-| AIX.SharedKernel | Shared | Minimal shared types |
+| Project | Role |
+|---------|------|
+| AIX.Platform.Api | Platform HTTP: auth, tenant registry, provisioning (~5184) |
+| AIX.Business.Api | Business HTTP: documents, governance, workflows (~5169) |
+| AIX.SharedKernel | Minimal primitives only |
+| AIX.Documents … AIX.Integrations | Business bounded contexts |
+| AIX.Platform | Platform bounded context (tenants, registry) |
+| AIX.Infrastructure | Composition / shared infrastructure adapters only |
 
-**Dependency rules:** Domain ↛ Application/Infrastructure. Application ↛ Infrastructure.
+Each BC project layout: `Domain/`, `Application/`, `Infrastructure/`, `Contracts/`, `Events/`.
+
+**Dependency rules:** BCs reference SharedKernel only. APIs reference BCs via Application/Contracts (Business) or Platform BC (Platform). No business logic in Api controllers.
+
+## Tenant runtime
+
+```
+Frontend → Platform Auth → JWT (tenant_id, user_id, session_id) → Business API
+→ TenantRuntimeResolver → Platform registry / cache → Secret Store → tenant DB + storage
+```
+
+- Authentication: Platform (`AIX.Platform.Api`)
+- Authorization: Business (`AIX.Business.Api`)
+- Tokens carry identity/context only—never secrets or connection strings
+- One database per tenant for business data; Platform DB for registry and identity
 
 ## Where to put new code
 
 | Change | Location |
 |--------|----------|
 | HTTP endpoint | `src/AIX.*.Api` (thin) |
-| Use case / handler | `src/AIX.Application` |
-| Entity / rule | `src/AIX.*.Domain` |
-| Repository / EF | `src/AIX.Infrastructure` |
+| Use case / handler | `src/AIX.<Context>/Application/` |
+| Entity / rule | `src/AIX.<Context>/Domain/` |
+| Public DTO / API contract | `src/AIX.<Context>/Contracts/` |
+| Integration event | `src/AIX.<Context>/Events/` |
+| BC persistence / adapter | `src/AIX.<Context>/Infrastructure/` |
+| Shared bootstrap adapter | `src/AIX.Infrastructure` (sparingly) |
 | Shared primitive | `src/AIX.SharedKernel` (sparingly) |
 | Angular feature | `apps/aix-ui/src/app/...` |
 | Reusable UI | `libs/shared-ui` |
@@ -50,4 +66,6 @@ cd backend && dotnet restore && dotnet build && dotnet test
 
 - Add NestJS or Node backends to Nx
 - Put business logic in Api controllers
-- Reference Infrastructure from Domain or Application
+- Add a global `AIX.Application` project
+- Put domain rules in `AIX.Infrastructure` or `AIX.SharedKernel`
+- Put connection strings or storage paths in JWTs or client requests

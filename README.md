@@ -1,6 +1,6 @@
 # AIX (Axioma)
 
-Intelligent document management platform: structured composition, dynamic forms, OCR/AI extraction, multi-tenancy, and hybrid storage.
+Intelligent document management platform: structured composition, dynamic forms, multi-tenancy, and hybrid storage. OCR and AI are optional future capability layers; v1.0 is AI-ready but not AI-dependent.
 
 ## Stack
 
@@ -35,7 +35,7 @@ Backend (from repo root):
 ```bash
 pnpm run build:backend
 pnpm run test:backend
-pnpm run serve:tenant-api
+pnpm run serve:platform-api
 pnpm run serve:business-api
 ```
 
