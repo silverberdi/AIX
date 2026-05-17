@@ -1,54 +1,58 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# Node
+node_modules/
+dist/
+.tmp/
+tmp/
+out-tsc/
+coverage/
 
-# compiled output
-dist
-tmp
-out-tsc
+# Nx
+.nx/
+.angular/
 
-# dependencies
-node_modules
+# Backend .NET
+backend/**/bin/
+backend/**/obj/
+backend/.vs/
+*.user
+*.suo
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
+# IDE
+.vscode/
+.idea/
+*.swp
 .DS_Store
 Thumbs.db
 
-.nx/cache
-.nx/workspace-data
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+testem.log
+libpeerconnection.log
+
+# Environment
+.env
+.env.*
+
+# Test outputs
+playwright-report/
+test-results/
+
+# Tooling caches
+.sass-cache/
+/connect.lock
+/typings
+vitest.config.*.timestamp*
+
+# Agent / local
 .claude/worktrees
 .claude/settings.local.json
 
-.angular
-
-vitest.config.*.timestamp*
-
-# .NET
-backend/**/bin/
-backend/**/obj/
-*.user
-*.suo
+# Generated contract exports (keep README and .gitkeep)
+artifacts/openapi/**
+!artifacts/openapi/README.md
+!artifacts/openapi/.gitkeep
+artifacts/schemas/**
+!artifacts/schemas/README.md
+!artifacts/schemas/.gitkeep

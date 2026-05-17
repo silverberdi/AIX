@@ -15,44 +15,38 @@ Monorepo with **physical separation**: frontend under `apps/` and `libs/`, backe
 ## Repository structure
 
 ```
-apps/aix-ui              Angular application
-libs/shared-ui           Shared UI components
-libs/shared-core         Shared frontend core
-backend/                 .NET solution (AIX.sln)
+apps/aix-ui              Angular application (Nx)
+libs/                    Shared frontend libraries (Nx)
+backend/                 .NET solution (AIX.sln) — independent of Nx
+artifacts/               OpenAPI + JSON Schema contracts
 docs/                    Architecture, domain, standards
 ai/                      Agent context & instructions
 ```
 
 ## Quick start
 
-### Frontend
-
 ```bash
 pnpm install
-nx serve aix-ui
+pnpm run serve:ui
 ```
 
-### Backend
+Backend (from repo root):
 
 ```bash
-cd backend
-dotnet restore
-dotnet build
-dotnet test
+pnpm run build:backend
+pnpm run test:backend
+pnpm run serve:tenant-api
+pnpm run serve:business-api
 ```
 
-Run APIs:
-
-```bash
-dotnet run --project src/AIX.Tenant.Api
-dotnet run --project src/AIX.Business.Api
-```
+See [repository structure](docs/architecture/repository-structure.md) for the hybrid monorepo model.
 
 ## Documentation
 
 - [Local development](docs/onboarding/local-development.md)
 - [System overview](docs/architecture/system-overview.md)
 - [Backend architecture](docs/architecture/backend-architecture.md)
+- [Repository structure](docs/architecture/repository-structure.md)
 - [Coding standards](docs/standards/coding-standards.md)
 
 ## Principles

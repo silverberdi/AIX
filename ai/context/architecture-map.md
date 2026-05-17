@@ -8,6 +8,7 @@
 /libs/shared-ui           → Shared UI components
 /libs/shared-core         → Shared frontend utilities
 /backend/                 → .NET 9 solution (NOT in Nx graph)
+/artifacts/               → OpenAPI + JSON Schema contracts
 /docs/                    → Human documentation
 /ai/                      → Agent instructions & context
 ```
