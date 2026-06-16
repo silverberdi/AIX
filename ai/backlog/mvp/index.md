@@ -18,7 +18,7 @@
 | slice-014-renderer-contract-preparation | Wave 2 | Done | slice-013 |
 | slice-015-schema-validation-integration | Wave 2 | Done | slice-009, slice-012, slice-014 |
 | slice-016-capture-metadata-contracts | Wave 3 | Done | slice-015 |
-| slice-017-document-metadata-attachment | Wave 3 | Pending | slice-016 |
+| slice-017-document-metadata-attachment | Wave 3 | Done | slice-016 |
 | slice-018-capture-validation-port | Wave 3 | Pending | slice-016, slice-017, slice-015 |
 | slice-019-document-completion-readiness | Wave 3 | Pending | slice-004, slice-017, slice-018 |
 | slice-020-complete-with-capture-enforcement | Wave 3 | Pending | slice-019 |

@@ -1,3 +1,4 @@
+using AIX.Documents.Contracts;
 using AIX.Documents.Events;
 using AIX.SharedKernel.Primitives;
 
@@ -9,6 +10,7 @@ public sealed class Document : Entity<DocumentId>
     private readonly DocumentTypeVersionId _documentTypeVersionId;
     private readonly List<DocumentFile> _files = [];
     private readonly List<DomainEvent> _domainEvents = [];
+    private DocumentCapturedMetadata? _capturedMetadata;
 
     public DocumentTypeId DocumentTypeId => _documentTypeId;
     public DocumentTypeVersionId DocumentTypeVersionId => _documentTypeVersionId;
@@ -17,6 +19,7 @@ public sealed class Document : Entity<DocumentId>
     public DateTimeOffset CreatedAt { get; private init; }
     public DocumentState State { get; private set; }
     public IReadOnlyList<DocumentFile> Files => _files;
+    public DocumentCapturedMetadata? CapturedMetadata => _capturedMetadata;
 
     public IReadOnlyList<DomainEvent> DomainEvents => _domainEvents;
 
@@ -157,6 +160,30 @@ public sealed class Document : Entity<DocumentId>
             fileName,
             contentType,
             sizeInBytes));
+
+        return Result.Success();
+    }
+
+    public Result SetCapturedMetadata(CapturedMetadataPayload payload, IClock clock)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+        ArgumentNullException.ThrowIfNull(clock);
+
+        if (State == DocumentState.Complete)
+        {
+            return Result.Failure(DocumentErrors.CannotModifyWhenComplete);
+        }
+
+        var capturedMetadata = DocumentCapturedMetadata.From(payload);
+        _capturedMetadata = capturedMetadata;
+
+        _domainEvents.Add(new DocumentMetadataCaptured(
+            Guid.NewGuid(),
+            clock.UtcNow,
+            CorrelationId.New(),
+            Id,
+            capturedMetadata.StandaloneValues,
+            capturedMetadata.GroupInstances));
 
         return Result.Success();
     }

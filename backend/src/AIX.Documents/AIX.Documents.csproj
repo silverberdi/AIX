@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AIX.Documents.Contracts\AIX.Documents.Contracts.csproj" />
     <ProjectReference Include="..\AIX.SharedKernel\AIX.SharedKernel.csproj" />
   </ItemGroup>
 

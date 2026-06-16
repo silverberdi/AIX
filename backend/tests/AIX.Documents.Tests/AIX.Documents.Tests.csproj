@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\AIX.Documents.Contracts\AIX.Documents.Contracts.csproj" />
     <ProjectReference Include="..\..\src\AIX.Documents\AIX.Documents.csproj" />
   </ItemGroup>
 

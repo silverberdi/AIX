@@ -13,23 +13,23 @@ Then continue with this file.
 
 ## Active slice
 
-**slice-017-document-metadata-attachment** — Wave 3 — Capture MVP
+**slice-018-capture-validation-port** — Wave 3 — Capture MVP
 
-- Slice file: `ai/backlog/mvp/wave-3-capture/slice-017-document-metadata-attachment.md`
+- Slice file: `ai/backlog/mvp/wave-3-capture/slice-018-capture-validation-port.md`
 - Planning reference: `openspec/changes/wave-3-capture-mvp-planning/design.md`
 - Wave 3 folder: `ai/backlog/mvp/wave-3-capture/`
 
 ## Context
 
-Wave 2 and **Wave 2 Domain Review** are **Done** (review verified 2026-05-23, **PASS**). Slice 016 introduced passive capture contracts in `AIX.Documents.Contracts`. Core path is 016–020; slice 021 is last-priority and optional.
+Wave 2 and **Wave 2 Domain Review** are **Done** (review verified 2026-05-23, **PASS**). Slice 016 introduced passive capture contracts in `AIX.Documents.Contracts`. Slice 017 attached captured metadata on the `Document` aggregate (Draft only, no schema validation yet). Core path is 016–020; slice 021 is last-priority and optional.
 
 ### Wave 3 slice order
 
 | Slice | Status |
 |-------|--------|
 | slice-016-capture-metadata-contracts | **Done** |
-| slice-017-document-metadata-attachment | **Next** |
-| slice-018-capture-validation-port | Pending |
+| slice-017-document-metadata-attachment | **Done** |
+| slice-018-capture-validation-port | **Next** |
 | slice-019-document-completion-readiness | Pending |
 | slice-020-complete-with-capture-enforcement | Pending |
 | slice-021-capture-context-contract | Pending (optional, last priority) |

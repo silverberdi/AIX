@@ -1,6 +1,6 @@
 # Current Execution State
 
-Last updated: 2026-06-15 (slice-016 complete). Refresh after each slice completes or health changes.
+Last updated: 2026-06-16 (slice-017 complete). Refresh after each slice completes or health changes.
 
 ## Wave 0 progress
 
@@ -46,8 +46,8 @@ Wave 2 is **complete**.
 | Slice | Status |
 |-------|--------|
 | slice-016-capture-metadata-contracts | **Done** |
-| slice-017-document-metadata-attachment | **Next** |
-| slice-018-capture-validation-port | Pending |
+| slice-017-document-metadata-attachment | **Done** |
+| slice-018-capture-validation-port | **Next** |
 | slice-019-document-completion-readiness | Pending |
 | slice-020-complete-with-capture-enforcement | Pending |
 | slice-021-capture-context-contract | Pending (optional, last priority) |
@@ -59,8 +59,8 @@ Backlog: `ai/backlog/mvp/wave-3-capture/`
 | Check | Status |
 |-------|--------|
 | .NET 9 solution (`backend/AIX.sln`) | Builds |
-| Full solution tests | Pass |
-| `AIX.Documents.Tests` | **25/25** pass |
+| Full solution tests | **191/191** pass |
+| `AIX.Documents.Tests` | **32/32** pass |
 | `AIX.SharedKernel.Tests` | **12/12** pass |
 | `AIX.Metadata.Tests` | **129/129** pass |
 | `AIX.Metadata.Contracts` | Builds (no SharedKernel dependency) |
@@ -85,7 +85,16 @@ cd backend && dotnet restore AIX.sln && dotnet build AIX.sln && dotnet test AIX.
 
 ## Current slice
 
-**slice-017-document-metadata-attachment** — attach captured metadata on `Document` aggregate (Draft only). See `ai/backlog/mvp/wave-3-capture/slice-017-document-metadata-attachment.md`.
+**slice-018-capture-validation-port** — wire `SetCapturedMetadata` to version-scoped schema validation via `ICaptureMetadataValidator`. See `ai/backlog/mvp/wave-3-capture/slice-018-capture-validation-port.md`.
+
+## Slice 017 summary (complete)
+
+- `Document` supports captured metadata while **Draft** (`CapturedMetadata` is `null` until first set).
+- Metadata is stored as Documents-owned value types (`DocumentCapturedMetadata`, `DocumentCapturedMetadataGroupInstance`) mapped from `CapturedMetadataPayload`.
+- `SetCapturedMetadata(CapturedMetadataPayload, IClock)` accepts contract payloads at the boundary; metadata can be **replaced** on subsequent calls while Draft.
+- Metadata updates are **rejected after Complete** with `DocumentErrors.CannotModifyWhenComplete`; `DocumentTypeId` and `DocumentTypeVersionId` remain immutable.
+- `DocumentMetadataCaptured` domain event is emitted on successful set/replace.
+- **No schema validation** yet — slice 018 owns the validation port and gate.
 
 ## Blockers
 
