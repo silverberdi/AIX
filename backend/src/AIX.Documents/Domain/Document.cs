@@ -7,6 +7,7 @@ public sealed class Document : Entity<DocumentId>
 {
     private readonly DocumentTypeId _documentTypeId;
     private readonly DocumentTypeVersionId _documentTypeVersionId;
+    private readonly List<DocumentFile> _files = [];
     private readonly List<DomainEvent> _domainEvents = [];
 
     public DocumentTypeId DocumentTypeId => _documentTypeId;
@@ -14,7 +15,8 @@ public sealed class Document : Entity<DocumentId>
     public TaxonomyNodeId TaxonomyNodeId { get; private init; }
     public UserId CreatedBy { get; private init; }
     public DateTimeOffset CreatedAt { get; private init; }
-    public DocumentState State { get; private init; }
+    public DocumentState State { get; private set; }
+    public IReadOnlyList<DocumentFile> Files => _files;
 
     public IReadOnlyList<DomainEvent> DomainEvents => _domainEvents;
 
@@ -75,5 +77,87 @@ public sealed class Document : Entity<DocumentId>
             createdBy));
 
         return Result<Document>.Success(document);
+    }
+
+    public Result Complete(IClock clock)
+    {
+        ArgumentNullException.ThrowIfNull(clock);
+
+        if (State == DocumentState.Complete)
+        {
+            return Result.Failure(DocumentErrors.AlreadyComplete);
+        }
+
+        State = DocumentState.Complete;
+
+        _domainEvents.Add(new DocumentCompleted(
+            Guid.NewGuid(),
+            clock.UtcNow,
+            CorrelationId.New(),
+            Id));
+
+        return Result.Success();
+    }
+
+    public Result AttachFile(
+        DocumentFileId fileId,
+        DocumentFileRole role,
+        string fileName,
+        string contentType,
+        long sizeInBytes,
+        IClock clock)
+    {
+        ArgumentNullException.ThrowIfNull(clock);
+
+        if (State == DocumentState.Complete)
+        {
+            return Result.Failure(DocumentErrors.CannotModifyWhenComplete);
+        }
+
+        if (fileId.Value == Guid.Empty)
+        {
+            return Result.Failure(DocumentErrors.FileIdRequired);
+        }
+
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return Result.Failure(DocumentErrors.FileNameRequired);
+        }
+
+        if (string.IsNullOrWhiteSpace(contentType))
+        {
+            return Result.Failure(DocumentErrors.ContentTypeRequired);
+        }
+
+        if (sizeInBytes <= 0)
+        {
+            return Result.Failure(DocumentErrors.FileSizeInvalid);
+        }
+
+        if (_files.Any(file => file.Id == fileId))
+        {
+            return Result.Failure(DocumentErrors.FileAlreadyAttached);
+        }
+
+        if (role == DocumentFileRole.Primary && _files.Any(file => file.Role == DocumentFileRole.Primary))
+        {
+            return Result.Failure(DocumentErrors.PrimaryFileAlreadyExists);
+        }
+
+        var file = new DocumentFile(fileId, role, fileName, contentType, sizeInBytes);
+        _files.Add(file);
+
+        _domainEvents.Add(new DocumentFileAttached(
+            Guid.NewGuid(),
+            clock.UtcNow,
+            CorrelationId.New(),
+            Id,
+            fileId,
+            role,
+            fileName,
+            contentType,
+            sizeInBytes));
+
+        return Result.Success();
     }
 }

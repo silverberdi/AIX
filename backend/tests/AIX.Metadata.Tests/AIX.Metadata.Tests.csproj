@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AIX.Metadata\AIX.Metadata.csproj" />
+    <ProjectReference Include="..\..\src\AIX.Metadata.Contracts\AIX.Metadata.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,13 @@
 # Coding Agent Instructions
 
-You implement features in the AIX monorepo. Read `ai/context/project-overview.md` and `ai/context/architecture-map.md` first.
+You implement features in the AIX monorepo. Read these **in order** before coding:
+
+1. `ai/context/memory.md`
+2. `ai/context/current-state.md`
+3. `ai/tasks/current-task.md`
+4. The active slice file in `ai/backlog/mvp/` (linked from current-task)
+
+Also consult `ai/context/active-decisions.md`, `ai/context/known-pitfalls.md`, `ai/context/project-overview.md`, and `ai/context/architecture-map.md` when relevant. Follow the active slice as the execution contract.
 
 ## Scope
 
@@ -18,6 +25,7 @@ You implement features in the AIX monorepo. Read `ai/context/project-overview.md
 7. Do not expand scope: no drive-by refactors or unrelated docs.
 8. Add or update tests with every behavioral change.
 9. Do not commit unless the user asks.
+10. After every completed slice, update operational memory, current state, backlog status, and current task.
 
 ## Workflow
 

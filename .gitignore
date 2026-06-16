@@ -7,16 +7,19 @@ tmp/
 out-tsc/
 coverage/
 
-# Nx
+# Nx / Angular
 .nx/
-.angular/
+.nx/cache/
+.angular/cache/
 
 # Backend .NET
 backend/**/bin/
 backend/**/obj/
 backend/.vs/
+TestResults/
 *.user
 *.suo
+*.rsuser
 
 # IDE
 .vscode/
@@ -57,3 +60,5 @@ artifacts/openapi/**
 artifacts/schemas/**
 !artifacts/schemas/README.md
 !artifacts/schemas/.gitkeep
+
+.pnpm-store/

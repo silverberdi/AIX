@@ -31,7 +31,7 @@ libs/           Shared frontend libraries (Nx projects)
 backend/        .NET solution — outside Nx graph
 artifacts/      OpenAPI + JSON Schema contracts (generated)
 docs/           Human documentation (domain, architecture, ADRs)
-ai/             Agent context and instructions
+ai/             Agent context, instructions, and MVP slice backlog (`ai/backlog/mvp/`)
 ```
 
 ## Shared artifacts strategy

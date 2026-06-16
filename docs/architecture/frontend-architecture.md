@@ -16,16 +16,16 @@
 - Lazy loading
 - No business logic inside UI components
 
-## Suggested Structure
+## Structure (current)
 
 apps/
-  axioma-web/
+  aix-ui/
+  aix-ui-e2e/
 
 libs/
-  shared/
-  ui/
-  data-access/
-  features/
+  shared-core/
+  shared-data-access/
+  shared-ui/
 
 ## State Management
 

@@ -1,0 +1,350 @@
+schema: spec-driven
+
+context: |
+  Project: AIX / Axioma.
+
+  AIX is an intelligent document management platform for SMEs. The product
+  focuses on document governance, dynamic document composition, structured
+  metadata capture, declarative form rendering, multi-tenancy, and storage
+  abstraction.
+
+  AIX v1.0 is AI-ready but not AI-dependent. Governance, capture, validation,
+  storage preparation, and structured search are in scope. Advanced AI runtime,
+  advanced OCR, semantic search, complex retention automation, and advanced
+  workflow automation are future capability layers unless explicitly approved in
+  a dedicated change.
+
+  Current stage:
+  - Wave 0 — Foundation / Core Document Aggregate: complete.
+  - Wave 1 — Document Type System: complete.
+  - Wave 2 — Metadata & Layouts: complete.
+  - Wave 2 Domain Review: PASS.
+  - Current active work: Wave 3 planning.
+  - Next target: define Wave 3 — Capture MVP slices under ai/backlog/mvp/ before
+    coding.
+  - Do not implement Wave 3 code until its slices and Definition of Done are
+    explicitly defined.
+  - The repository is still mostly skeleton or placeholder code outside completed
+    slices. Do not treat placeholders as legacy behavior to preserve unless a
+    completed slice established them as real behavior.
+
+  Completed implementation baseline:
+  - Document aggregate creation in Draft state.
+  - Document Draft to Complete transition.
+  - Document domain events for creation, completion, and file attachment.
+  - Primary and supporting document file references as domain metadata.
+  - Completed documents reject completed-state mutations.
+  - DocumentType aggregate with activation, deactivation, and version creation.
+  - DocumentTypeVersion as immutable version record/snapshot.
+  - KeywordRegistry aggregate with keyword data types, length rules, and value
+    validation.
+  - KeywordGroup aggregate with required and repeatable semantics.
+  - Centralized KeywordValidator.
+  - FieldSchema model with MVP catalog types: Text, TextArea, Number, Decimal,
+    Date, DateTime, and Boolean.
+  - VersionSchemaComposition as immutable snapshot on DocumentTypeVersion.
+  - Version schema group assignments with point-in-time group and registry
+    integrity.
+  - LayoutSchema as immutable presentation model separate from composition.
+  - Layout references composition keys only.
+  - Renderer contracts in AIX.Metadata.Contracts.
+  - DocumentSchemaProjector for read-only schema export.
+  - DefaultLayoutGenerator for renderer preparation.
+  - VersionMetadataPayload and MetadataGroupInstancePayload.
+  - VersionSchemaValidator and DocumentType.ValidateMetadataAgainstVersion.
+  - Schema validation returns deterministic multiple errors for expected
+    validation failures.
+  - Hidden, deprecated, unknown, or unexpected metadata keys are rejected during
+    schema validation.
+  - Unexpected group instances are rejected during schema validation.
+
+  Current validation baseline:
+  - backend/AIX.sln builds.
+  - Full backend tests pass.
+  - AIX.Documents.Tests pass.
+  - AIX.SharedKernel.Tests pass.
+  - AIX.Metadata.Tests pass.
+  - AIX.Metadata.Contracts builds and must not depend on AIX.SharedKernel.
+
+  Official stack:
+  - Frontend: Angular 21 SPA.
+  - Frontend workspace: Nx.
+  - UI library: PrimeNG 21.
+  - UI theme/template: Avalon.
+  - Backend: .NET 9.
+  - Backend solution: backend/AIX.sln.
+  - Database target: PostgreSQL.
+  - Architecture style: modular monolith first.
+  - Delivery style: vertical slices with explicit Definition of Done.
+  - Cross-boundary integration: contracts and events.
+  - Runtime tenant model: Platform DB for registry/identity plus one business
+    database per tenant.
+
+  Repository layout:
+  - apps/aix-ui: Angular SPA.
+  - apps/aix-ui-e2e: Playwright E2E.
+  - libs/shared-ui: reusable frontend UI components.
+  - libs/shared-core: shared frontend utilities.
+  - backend/: .NET solution. The backend is not part of the Nx graph.
+  - artifacts/: OpenAPI and JSON Schema contracts.
+  - docs/: human documentation.
+  - ai/: agent context, instructions, backlog, tasks, and reviews.
+  - openspec/: OpenSpec config, specs, and changes.
+  - Never create .ai/. Use ai/ only.
+
+  Backend architecture:
+  - Use a modular monolith during MVP. Do not introduce microservices.
+  - Platform API and Business API are separate.
+  - AIX.Platform.Api handles authentication, tenant registry, and provisioning.
+  - AIX.Business.Api handles tenant business operations such as documents,
+    governance, workflows, capture, metadata, and storage orchestration.
+  - Bounded contexts include AIX.Documents, AIX.Metadata, AIX.Governance,
+    AIX.Storage, AIX.Search, AIX.Workflow, AIX.Security, AIX.ReferenceData,
+    AIX.Integrations, and AIX.Platform.
+  - Shared projects:
+    - AIX.SharedKernel: minimal primitives only.
+    - AIX.Infrastructure: composition and shared infrastructure adapters only.
+  - Each bounded context owns its Domain/, Application/, Infrastructure/,
+    Contracts/, and Events/ folders or projects.
+  - Bounded contexts must not reference each other directly.
+  - Bounded contexts may reference AIX.SharedKernel only for shared primitives.
+  - Cross-BC integration must happen through contracts and events, not direct
+    project references.
+  - Do not create a global AIX.Application project.
+  - Do not put business logic in API controllers.
+  - Do not put domain rules in AIX.Infrastructure.
+  - Do not put business rules or bounded-context-specific types in
+    AIX.SharedKernel.
+  - APIs reference bounded contexts through Application and Contracts as
+    appropriate.
+  - API controllers must remain thin.
+
+  Tenant runtime:
+  - Frontend authenticates through Platform.
+  - Platform issues JWTs carrying tenant_id, user_id, and session_id.
+  - JWTs carry identity and context only.
+  - JWTs must never contain secrets, connection strings, storage paths, or
+    provider credentials.
+  - Business API resolves tenant runtime through tenant context, Platform
+    registry/cache, secret store, tenant database, and tenant storage.
+  - Authentication belongs to Platform.
+  - Authorization belongs to Business.
+  - Business data uses one database per tenant.
+  - Platform data uses a Platform database.
+  - Every change touching data access, storage, authorization, contracts, or
+    runtime context must consider tenant isolation.
+  - Avoid tenant leakage in every design.
+
+  Product and domain principles:
+  - AIX is not only file storage. It is a document governance and capture
+    platform.
+  - API/contracts are the source of truth for clients.
+  - UI must be declarative and renderer-driven.
+  - Do not duplicate validation between domain, API, and UI.
+  - Metadata validation must remain centralized and reusable.
+  - Versioning is immutable.
+  - Published/versioned definitions are snapshots, not live mutable references.
+  - Document is an aggregate root.
+  - DocumentType is an aggregate root.
+  - DocumentTypeVersion represents immutable published snapshots.
+  - KeywordRegistry is an aggregate root.
+  - KeywordGroup is an aggregate root.
+  - Composition and layout are separate concerns.
+  - Layout references composition keys only.
+  - Storage must be abstracted behind provider-independent contracts.
+  - Prefer event-driven asynchronous processing when a slice has a real async
+    boundary, but do not introduce event sourcing during MVP.
+
+  Deferred unless an active slice explicitly requires them:
+  - Persistence.
+  - Repositories.
+  - Generic repository pattern.
+  - EF Core.
+  - HTTP APIs and controllers beyond skeleton.
+  - MediatR.
+  - Angular feature screens.
+  - PrimeNG 21 installation.
+  - Avalon theme setup.
+  - Runtime multi-tenancy implementation.
+  - Concrete storage provider implementation.
+  - OCR.
+  - Advanced AI runtime.
+  - Semantic search.
+  - Retention automation.
+  - Workflow automation.
+  - GraphQL.
+  - Event sourcing.
+  - Microservices.
+  - NestJS or Node backends.
+
+  Backlog conventions:
+  - ai/backlog/mvp/index.md is the official MVP slice registry.
+  - Slices are the unit of delivery.
+  - Wave 0, Wave 1, and Wave 2 slices are Done.
+  - Wave 3 — Capture MVP must be defined under ai/backlog/mvp/ before coding.
+  - Use docs/roadmap/aix-mvp-capability-board.md as planning input when defining
+    Wave 3 slices.
+  - Every slice must have explicit scope, dependencies, tasks, acceptance
+    criteria, and Definition of Done.
+  - Do not mark a slice Done until its Definition of Done is verified and tests
+    pass.
+  - After a completed slice, update ai/context/memory.md,
+    ai/context/current-state.md, ai/backlog/mvp/index.md, and
+    ai/tasks/current-task.md.
+
+  Required session workflow for implementation agents:
+  - Read ai/context/memory.md first.
+  - Read ai/context/current-state.md.
+  - Read ai/tasks/current-task.md.
+  - Read the active slice file linked from ai/tasks/current-task.md.
+  - Also consult ai/context/active-decisions.md,
+    ai/context/known-pitfalls.md, ai/context/project-overview.md,
+    ai/context/architecture-map.md, docs/standards/naming-conventions.md, and
+    docs/standards/coding-standards.md when relevant.
+  - Follow the active slice as the execution contract.
+  - Identify affected bounded contexts and layers before editing.
+  - Implement the smallest change that satisfies the active slice.
+  - Stay inside the bounded contexts and projects listed by the active slice.
+  - Do not expand scope with drive-by refactors, extra docs, unrelated features,
+    or unrelated bounded contexts.
+  - Do not commit unless the user explicitly asks.
+
+  Naming and contract conventions:
+  - Follow docs/standards/naming-conventions.md for all new types, files, routes,
+    APIs, events, policies, and artifacts.
+  - Match existing names in touched code unless the active task explicitly
+    renames them.
+  - Backend projects and namespaces use AIX.<Context>.<Layer>.
+  - Avoid vague Manager, Helper, Util, Processor, or generic Service types.
+  - Domain entities must not be exposed directly through APIs.
+  - Commands, queries, handlers, DTOs, events, policies, and artifacts must use
+    the prescribed suffixes from the naming standards.
+  - Internal events use past-tense names.
+  - External integration events use a V1 suffix.
+  - SCREAMING_SNAKE_CASE is only for serialized type constants.
+  - Database names use snake_case.
+  - JSON uses camelCase.
+  - Angular files, routes, and selectors use the documented Angular naming rules.
+  - OpenAPI artifacts belong under artifacts/openapi/*.v*.openapi.json.
+  - JSON Schema artifacts belong under artifacts/schemas/*-schema.v*.json.
+
+  Quality rules:
+  - Test-first execution is mandatory for behavioral changes.
+  - Add or update tests with every behavioral change.
+  - Do not weaken existing tests to make new work pass.
+  - Strong typing is mandatory.
+  - Use nullable and strong typing correctly in C#.
+  - Do not use any in TypeScript.
+  - Do not commit secrets, connection strings, storage keys, provider credentials,
+    tenant secrets, or generated sensitive data.
+  - Avoid broad abstractions before concrete slice pressure exists.
+  - Avoid generic CRUD services, catch-all base classes, vague helpers, and
+    speculative frameworks.
+  - Do not duplicate existing docs or create parallel documentation trees.
+  - Do not rewrite architecture docs during implementation unless the active
+    change explicitly requires it.
+  - When contracts are added or changed, keep artifacts and documentation aligned.
+
+  Validation commands:
+  - Backend full validation:
+    cd backend && dotnet restore AIX.sln && dotnet build AIX.sln && dotnet test AIX.sln
+  - Backend quick validation:
+    cd backend && dotnet build && dotnet test
+  - Frontend validation when frontend changes are in scope:
+    pnpm install && nx build aix-ui && nx test aix-ui
+  - E2E validation when e2e changes are in scope:
+    pnpm install && nx e2e aix-ui-e2e
+
+rules:
+  proposal:
+    - State the user-visible problem, product capability, or engineering risk
+      being changed.
+    - Identify the exact wave, slice, or planning activity this change belongs
+      to.
+    - State whether the change is planning-only, domain-only, application-layer,
+      infrastructure, API, UI, or cross-cutting.
+    - List affected bounded contexts, projects, contracts, docs, and artifacts.
+    - Reference existing docs, completed slices, or current context before
+      inventing new patterns.
+    - Explicitly list out-of-scope items.
+    - Do not propose persistence, APIs, UI, EF Core, MediatR, GraphQL, event
+      sourcing, microservices, or concrete storage providers unless the user
+      explicitly approved that scope.
+    - Include a validation strategy and expected test impact.
+    - Call out tenant, validation, versioning, storage, authorization, contract,
+      and migration risks when relevant.
+    - Keep the proposal focused on one coherent change.
+    - Prefer a small change with clear acceptance criteria over a broad change
+      with vague scope.
+    - For Wave 3, define slices before coding and keep persistence/API/UI out of
+      scope unless the slice explicitly brings them in.
+
+  specs:
+    - Write requirements as observable behavior, not implementation tasks.
+    - Use clear requirement names and Given/When/Then scenarios where practical.
+    - Preserve the distinction between stable specs and change-specific deltas.
+    - Capture domain invariants explicitly.
+    - Include negative scenarios for validation, state transition, authorization,
+      tenant, and boundary failures when relevant.
+    - Specify versioning and immutability behavior when the change touches
+      document types, schemas, layouts, metadata, or published snapshots.
+    - Specify tenant isolation behavior when the change touches runtime data,
+      platform registry, identity, authorization, storage, or databases.
+    - Specify validation ownership and expected error behavior when the change
+      touches metadata, capture, contracts, or UI rendering.
+    - Do not encode UI layout details in domain specs unless the behavior is
+      specifically about declarative layout metadata.
+    - Do not duplicate broad architecture context already covered in this
+      config.
+    - Avoid implementation names unless they are part of an established contract
+      or domain language.
+    - Keep specs stable, readable, and useful as future regression criteria.
+
+  design:
+    - Show where new code belongs using the existing repository and bounded
+      context layout.
+    - Identify affected layers: Domain, Application, Infrastructure, Contracts,
+      Events, API, UI, artifacts, docs, or tests.
+    - Keep domain rules in Domain.
+    - Keep use cases and orchestration in the bounded context Application layer.
+    - Keep infrastructure adapters in the bounded context Infrastructure layer or
+      AIX.Infrastructure only when infrastructure is explicitly in scope.
+    - Keep API controllers thin when APIs are in scope.
+    - Do not create a global AIX.Application project.
+    - Explain contract and event boundaries for cross-bounded-context integration.
+    - Explain validation ownership and how duplicated validation is avoided.
+    - Explain tenant isolation and secret handling when runtime tenancy is in
+      scope.
+    - Explain storage abstraction when files or storage are in scope.
+    - Explain versioning, snapshot, and compatibility implications when changing
+      document types, metadata schemas, layouts, or contracts.
+    - Prefer concrete designs driven by current slice pressure over broad generic
+      abstractions.
+    - Include migration, rollback, or compatibility notes when persistence,
+      contracts, or public APIs are affected.
+    - Include testing strategy with unit, integration, frontend, and e2e scope as
+      appropriate.
+    - State explicitly when persistence, APIs, UI, or infrastructure are out of
+      scope.
+
+  tasks:
+    - Break implementation into small, testable steps aligned to the active
+      slice.
+    - Start with or include tests for every behavioral change.
+    - Keep each task tied to a concrete file, layer, behavior, or verification
+      step when possible.
+    - Do not include tasks for deferred work unless explicitly in scope.
+    - Do not include drive-by refactors or unrelated documentation cleanup.
+    - Include commands to validate the change.
+    - Backend changes should include:
+      cd backend && dotnet restore AIX.sln && dotnet build AIX.sln && dotnet test AIX.sln
+    - Frontend changes should include:
+      pnpm install && nx build aix-ui && nx test aix-ui
+    - Do not mark work Done until tests pass and Definition of Done is verified.
+    - Include documentation updates only when the change modifies stable product,
+      architecture, contracts, or operational context.
+    - Include post-slice updates for ai/context/memory.md,
+      ai/context/current-state.md, ai/backlog/mvp/index.md, and
+      ai/tasks/current-task.md.
+    - For planning changes, tasks must produce or update slice files before any
+      code task is created.

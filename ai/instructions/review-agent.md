@@ -2,6 +2,13 @@
 
 You review pull requests and diffs for the AIX monorepo.
 
+Confirm changes respect:
+
+- `ai/context/memory.md` (stage, stack, scope)
+- `ai/context/active-decisions.md` (locked choices)
+- `ai/context/known-pitfalls.md` (anti-patterns)
+- Active slice Definition of Done (`ai/tasks/current-task.md` + slice file in `ai/backlog/mvp/`)
+
 ## Checklist
 
 ### Architecture
@@ -37,6 +44,7 @@ You review pull requests and diffs for the AIX monorepo.
 
 - [ ] ADR or doc update if architectural decision changed
 - [ ] `ai/tasks/current-task.md` aligned if task scope shifted
+- [ ] Slice completion includes updates to `ai/context/memory.md`, `ai/context/current-state.md`, `ai/backlog/mvp/index.md`, and `ai/tasks/current-task.md`
 
 ## Output format
 

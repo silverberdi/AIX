@@ -1,5 +1,7 @@
 # AIX MVP Sequencing
 
+Implementation is delivered via vertical slices. The canonical slice registry and status live in `ai/backlog/mvp/index.md`; each slice is defined under `ai/backlog/mvp/`.
+
 ## Wave 0 — Foundation
 Goal:
 Make the architecture operational.
